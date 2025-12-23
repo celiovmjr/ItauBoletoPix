@@ -1,0 +1,38 @@
+# Dependencies
+/vendor/
+composer.lock
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+/logs/
+
+# Certificates (nunca commitar certificados)
+*.crt
+*.key
+*.pem
+/certificados/
+/certificates/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Tests
+/coverage/
+/.phpunit.cache/
+
+# Build
+/build/
+/dist/

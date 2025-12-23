@@ -1,0 +1,54 @@
+{
+    "name": "celiovmjr/itauboletopix",
+    "description": "Componente PHP de alto nível para geração de Boletos PIX no Itaú",
+    "type": "library",
+    "version": "1.0.0",
+    "license": "MIT",
+    "keywords": [
+        "itau",
+        "boleto",
+        "pix",
+        "pagamento",
+        "cobranca"
+    ],
+    "authors": [
+        {
+            "name": "Celio Junior",
+            "email": "profissional.celiojunior@outlook.com",
+            "homepage": "https://fb.com/celiojr1994",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": "^8.3",
+        "ext-curl": "*",
+        "ext-json": "*",
+        "psr/log": "^3.0",
+        "vlucas/phpdotenv": "^5.6"
+    },
+    "require-dev": {
+        "friendsofphp/php-cs-fixer": "^3.92",
+        "phpstan/phpstan": "^1.10",
+        "phpunit/phpunit": "^10.0",
+        "squizlabs/php_codesniffer": "^3.7"
+    },
+    "autoload": {
+        "psr-4": {
+            "ItauBoletoPix\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "ItauBoletoPix\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "test": "phpunit",
+        "stan": "phpstan analyse src --level=max",
+        "cs": "phpcs --standard=PSR12 src"
+    },
+    "config": {
+        "sort-packages": true,
+        "optimize-autoloader": true
+    }
+}
