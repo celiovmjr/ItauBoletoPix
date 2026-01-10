@@ -30,8 +30,8 @@ readonly class BoletoRequestDTO
     public function toArray(): array
     {
         return [
-            'beneficiary' => $this->beneficiary->toArray(),
-            'payer' => $this->payer->toArray(),
+            'beneficiary' => $this->beneficiary?->toArray(),
+            'payer' => $this->payer?->toArray(),
             'our_number' => $this->ourNumber,
             'your_number' => $this->yourNumber,
             'amount' => $this->amount,

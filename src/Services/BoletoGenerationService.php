@@ -56,7 +56,7 @@ final class BoletoGenerationService implements BoletoServiceInterface
             throw new BoletoException(
                 "Falha ao criar boleto: {$e->getMessage()}",
                 (int) $e->getCode(),
-                ['request' => $request->toArray()],
+                ['request' => $request?->toArray()],
                 $e
             );
         }
@@ -88,6 +88,30 @@ final class BoletoGenerationService implements BoletoServiceInterface
         $payer = $request->payer;
         $charge = $request->charge;
 
+        $pagadorData = [
+            'pessoa' => [
+                'nome_pessoa' => $payer->getName(),
+                'tipo_pessoa' => [
+                    'codigo_tipo_pessoa' => $payer->getDocumentType(),
+                    'numero_cadastro_pessoa_fisica' =>
+                        $payer->getDocumentType() === 'F' ? $payer->getDocument() : null,
+                    'numero_cadastro_nacional_pessoa_juridica' =>
+                        $payer->getDocumentType() === 'J' ? $payer->getDocument() : null,
+                ],
+            ],
+        ];
+
+        // Adiciona endereço apenas se estiver disponível
+        if ($payer->getAddress() !== null) {
+            $pagadorData['endereco'] = [
+                'nome_logradouro' => $payer->getAddress()->getStreet(),
+                'nome_bairro' => $payer->getAddress()->getNeighborhood(),
+                'nome_cidade' => $payer->getAddress()->getCity(),
+                'sigla_UF' => $payer->getAddress()->getState(),
+                'numero_CEP' => $payer->getAddress()->getZipCode(),
+            ];
+        }
+
         $payload = [
             'etapa_processo_boleto' => $request->processStep->value,
             'beneficiario' => [
@@ -101,25 +125,7 @@ final class BoletoGenerationService implements BoletoServiceInterface
                 'codigo_especie' => '01',
                 'data_emissao' => $request->issueDate->format('Y-m-d'),
                 'valor_abatimento' => '00000000000000000',
-                'pagador' => [
-                    'pessoa' => [
-                        'nome_pessoa' => $payer->getName(),
-                        'tipo_pessoa' => [
-                            'codigo_tipo_pessoa' => $payer->getDocumentType(),
-                            'numero_cadastro_pessoa_fisica' =>
-                                $payer->getDocumentType() === 'F' ? $payer->getDocument() : null,
-                            'numero_cadastro_nacional_pessoa_juridica' =>
-                                $payer->getDocumentType() === 'J' ? $payer->getDocument() : null,
-                        ],
-                    ],
-                    'endereco' => [
-                        'nome_logradouro' => $payer->getAddress()->getStreet(),
-                        'nome_bairro' => $payer->getAddress()->getNeighborhood(),
-                        'nome_cidade' => $payer->getAddress()->getCity(),
-                        'sigla_UF' => $payer->getAddress()->getState(),
-                        'numero_CEP' => $payer->getAddress()->getZipCode(),
-                    ],
-                ],
+                'pagador' => $pagadorData,
                 'dados_individuais_boleto' => [
                     [
                         'numero_nosso_numero' => str_pad($request->ourNumber, 8, '0', STR_PAD_LEFT),

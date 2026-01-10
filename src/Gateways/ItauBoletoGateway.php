@@ -90,7 +90,7 @@ class ItauBoletoGateway implements PaymentGatewayInterface
 
         $baseUrl = $this->sandbox
             ? 'https://secure.api.itau'
-            : 'https://secure.api.cloud.itau.com.br';
+            : 'https://api.itau.com.br';
 
         $url = $baseUrl . '/pix_recebimentos_conciliacoes/v2/boletos_pix';
 

@@ -36,7 +36,7 @@ class Payer
         return $this->person->getDocumentType();
     }
 
-    public function getAddress(): Address
+    public function getAddress(): Address|null
     {
         return $this->person->getAddress();
     }
@@ -47,7 +47,7 @@ class Payer
             'name' => $this->getName(),
             'document' => $this->getDocument(),
             'document_type' => $this->getDocumentType(),
-            'address' => $this->getAddress()->toArray(),
+            'address' => $this->getAddress()?->toArray(),
         ];
     }
 }

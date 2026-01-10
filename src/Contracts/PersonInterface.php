@@ -14,5 +14,5 @@ interface PersonInterface
     public function getName(): string;
     public function getDocument(bool $unmasked = true): ?string;
     public function getDocumentType(): string;
-    public function getAddress(): Address;
+    public function getAddress(): Address|null;
 }

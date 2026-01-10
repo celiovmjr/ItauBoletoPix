@@ -14,7 +14,7 @@ abstract class Person implements PersonInterface
     public function __construct(
         protected string $name,
         protected string $document,
-        protected Address $address
+        protected Address|null $address = null
     ) {
         $this->validate();
     }
@@ -33,7 +33,7 @@ abstract class Person implements PersonInterface
             : $this->document;
     }
 
-    public function getAddress(): Address
+    public function getAddress(): Address|null
     {
         return $this->address;
     }
