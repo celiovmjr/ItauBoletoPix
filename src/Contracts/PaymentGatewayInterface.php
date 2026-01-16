@@ -42,6 +42,16 @@ interface PaymentGatewayInterface
     public function fetchBoleto(Beneficiary $beneficiary, string $ourNumber): array;
 
     /**
+     * Busca boletos por período e filtros
+     *
+     * @param  Beneficiary                                $beneficiary   Beneficiário
+     * @param  array                                      $filters       Filtros de busca
+     * @return array                                      Lista de boletos e paginação
+     * @throws \ItauBoletoPix\Exceptions\GatewayException
+     */
+    public function fetchBoletos(Beneficiary $beneficiary, array $filters = []): array;
+
+    /**
      * Registra webhook para notificações
      *
      * @param  array                                      $webhookConfig Configuração do webhook

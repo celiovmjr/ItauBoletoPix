@@ -141,6 +141,100 @@ class ItauBoletoGateway implements PaymentGatewayInterface
         return $response;
     }
 
+    /**
+     * Busca boletos por período e filtros
+     *
+     * @param Beneficiary $beneficiary Beneficiário
+     * @param array $filters Filtros de busca:
+     *   - issueDate: string (formato: YYYY-MM-DD,YYYY-MM-DD)
+     *   - dueDate: string (formato: YYYY-MM-DD,YYYY-MM-DD)
+     *   - status: string (aberto, pago, cancelado, etc)
+     *   - ourNumber: string
+     *   - payerDocument: string (CPF/CNPJ do pagador sem formatação)
+     *   - page: int (página, começa em 0)
+     *   - pageSize: int (tamanho da página, máximo 100)
+     *   - orderBy: string (campo para ordenação)
+     *   - order: string (asc ou desc)
+     * @return array Lista de boletos e dados de paginação
+     */
+    public function fetchBoletos(Beneficiary $beneficiary, array $filters = []): array
+    {
+        $token = $this->authenticate();
+
+        $baseUrl = $this->sandbox
+            ? 'https://secure.api.itau'
+            : 'https://boleto.api.itau.com';
+
+        // Parâmetros obrigatórios
+        $queryParams = [
+            'idBeneficiario' => $beneficiary->getId(),
+        ];
+
+        // Parâmetros opcionais
+        if (isset($filters['issueDate'])) {
+            $queryParams['dataEmissao'] = $filters['issueDate'];
+        }
+
+        if (isset($filters['dueDate'])) {
+            $queryParams['dataVencimento'] = $filters['dueDate'];
+        }
+
+        if (isset($filters['status'])) {
+            $queryParams['situacao'] = $filters['status'];
+        }
+
+        if (isset($filters['ourNumber'])) {
+            $queryParams['nossoNumero'] = $filters['ourNumber'];
+        }
+
+        // Filtro por documento do pagador (CPF ou CNPJ)
+        if (isset($filters['payerDocument'])) {
+            $document = $this->sanitizeDocument($filters['payerDocument']);
+            
+            // Detecta se é CPF (11 dígitos) ou CNPJ (14 dígitos)
+            if (strlen($document) === 11) {
+                $queryParams['cpfPagador'] = $document;
+            } elseif (strlen($document) === 14) {
+                $queryParams['cnpjPagador'] = $document;
+            }
+        }
+
+        // Paginação
+        $queryParams['page'] = $filters['page'] ?? 0;
+        $queryParams['pageSize'] = min($filters['pageSize'] ?? 20, 100);
+
+        // Ordenação
+        if (isset($filters['orderBy'])) {
+            $queryParams['orderBy'] = $filters['orderBy'];
+        }
+
+        if (isset($filters['order'])) {
+            $queryParams['order'] = $filters['order'];
+        }
+
+        $url = $baseUrl . '/boleto/v1/boletos?' . http_build_query($queryParams);
+
+        $this->logger?->info('Buscando boletos', [
+            'url' => $url,
+            'filters' => $filters,
+        ]);
+
+        $response = $this->makeRequest($url, null, [
+            'Authorization: Bearer ' . $token,
+            'x-itau-apikey: ' . $this->clientId,
+            'x-itau-correlationID: ' . $this->generateUuid(),
+            'x-itau-flowID: ' . $this->generateUuid(),
+            'Content-Type: application/json',
+        ], 'GET');
+
+        $this->logger?->info('Boletos encontrados', [
+            'total' => $response['pagination']['totalElements'] ?? 0,
+            'page' => $response['pagination']['page'] ?? 0,
+        ]);
+
+        return $response;
+    }
+
     public function registerWebhook(array $webhookConfig): array
     {
         $token = $this->authenticate();
@@ -254,5 +348,16 @@ class ItauBoletoGateway implements PaymentGatewayInterface
             mt_rand(0, 0xffff),
             mt_rand(0, 0xffff)
         );
+    }
+
+    /**
+     * Remove formatação de CPF/CNPJ
+     *
+     * @param string $document CPF ou CNPJ com ou sem formatação
+     * @return string Documento sem formatação (apenas números)
+     */
+    private function sanitizeDocument(string $document): string
+    {
+        return preg_replace('/[^0-9]/', '', $document);
     }
 }
