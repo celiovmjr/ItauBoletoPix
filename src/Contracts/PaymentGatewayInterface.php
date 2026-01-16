@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace ItauBoletoPix\Contracts;
 
+use ItauBoletoPix\Models\Beneficiary;
+
 /**
  * Interface para gateways de pagamento
  *
@@ -32,12 +34,12 @@ interface PaymentGatewayInterface
     /**
      * Consulta boleto na API
      *
-     * @param  string                                     $beneficiaryId ID do beneficiário
+     * @param  Beneficiary                                $beneficiary   Beneficiário
      * @param  string                                     $ourNumber     Nosso número
      * @return array                                      Dados do boleto
      * @throws \ItauBoletoPix\Exceptions\GatewayException
      */
-    public function fetchBoleto(string $beneficiaryId, string $ourNumber): array;
+    public function fetchBoleto(Beneficiary $beneficiary, string $ourNumber): array;
 
     /**
      * Registra webhook para notificações

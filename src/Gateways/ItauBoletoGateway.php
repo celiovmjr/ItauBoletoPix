@@ -7,6 +7,7 @@ namespace ItauBoletoPix\Gateways;
 use ItauBoletoPix\Contracts\PaymentGatewayInterface;
 use ItauBoletoPix\Exceptions\AuthenticationException;
 use ItauBoletoPix\Exceptions\GatewayException;
+use ItauBoletoPix\Models\Beneficiary;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -113,7 +114,7 @@ class ItauBoletoGateway implements PaymentGatewayInterface
         return $response;
     }
 
-    public function fetchBoleto(string $beneficiaryId, string $ourNumber): array
+    public function fetchBoleto(Beneficiary $beneficiary, string $ourNumber): array
     {
         $token = $this->authenticate();
 
@@ -122,10 +123,9 @@ class ItauBoletoGateway implements PaymentGatewayInterface
             : 'https://secure.api.cloud.itau.com.br';
 
         $queryParams = http_build_query([
-            'id_beneficiario' => $beneficiaryId,
-            'codigo_carteira' => '109',
-            'nosso_numero' => $ourNumber,
-            'view' => 'specific',
+            'id_beneficiario' => $beneficiary->getId(),
+            'codigo_carteira' => $beneficiary->getWalletCode(),
+            'nosso_numero' => $ourNumber
         ]);
 
         $url = $baseUrl . '/boletoscash/v2/boletos?' . $queryParams;
