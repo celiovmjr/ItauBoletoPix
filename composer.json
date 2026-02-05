@@ -2,7 +2,7 @@
     "name": "celiovmjr/itauboletopix",
     "description": "Componente PHP de alto nível para geração de Boletos PIX no Itaú",
     "type": "library",
-    "version": "1.0.3",
+    "version": "1.0.5",
     "license": "MIT",
     "keywords": [
         "itau",
