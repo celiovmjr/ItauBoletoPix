@@ -322,8 +322,6 @@ class ItauBoletoGateway implements PaymentGatewayInterface
 
         // HTTP 200/201 são sucessos
         if (! in_array($httpCode, [200, 201])) {
-            var_dump($response);
-
             throw new GatewayException(
                 "Erro na API: HTTP {$httpCode}",
                 0,
